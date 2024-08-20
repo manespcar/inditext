@@ -1,0 +1,431 @@
+openapi: 3.0.3
+info:
+  title: Prices
+  description: |-
+    This API allows querying the following entities:
+      - Prices
+
+  version: 1.0.0
+  contact:
+    email: manespcar23@gmail.com
+    name: Manuel Jesús España
+servers:
+  - url: http://localhost:9090/prices_management
+tags:
+  - name: prices
+paths:
+  '/prices':
+    get:
+      tags:
+        - prices
+      summary: Allows querying the existing prices
+      operationId: queryPrices
+      parameters:
+        - $ref: '#/components/parameters/query-date'
+        - $ref: '#/components/parameters/query-product'
+        - $ref: '#/components/parameters/query-brand'
+      responses:
+        '200':
+          $ref: '#/components/responses/getPriceResponse'
+        '204':
+          $ref: '#/components/responses/response204'
+        '400':
+          $ref: '#/components/responses/error400'
+        '401':
+          $ref: '#/components/responses/error401'
+        '403':
+          $ref: '#/components/responses/error403'
+        '404':
+          $ref: '#/components/responses/error404'
+        '406':
+          $ref: '#/components/responses/error406'
+        '413':
+          $ref: '#/components/responses/error413'
+        '414':
+          $ref: '#/components/responses/error414'
+        '422':
+          $ref: '#/components/responses/error422'
+        '429':
+          $ref: '#/components/responses/error429'
+        '500':
+          $ref: '#/components/responses/error500'
+        '503':
+          $ref: '#/components/responses/error503'
+        '504':
+          $ref: '#/components/responses/error504'
+        default:
+          $ref: '#/components/responses/errorDefault'
+
+components:
+  parameters:
+    query-product:
+      name: product_id
+      in: query
+      description: The product identification
+      required: false
+      example: 35550
+      schema:
+        $ref: '#/components/schemas/ProductId'
+    query-brand:
+      name: brand_id
+      in: query
+      description: The brand identification
+      required: false
+      example: 1
+      schema:
+        $ref: '#/components/schemas/BrandId'
+    query-date:
+      name: date
+      in: query
+      description: The date in format 'yyyy-MM-dd HH:mm:ss'
+      required: true
+      example: '2020-06-14 18:30:00'
+      schema:
+        $ref: '#/components/schemas/Date'
+  schemas:
+    Error:
+      type: object
+      description: Data structure containing the error details
+      properties:
+        code:
+          type: string
+          description: Unique alphanumeric human readable error code
+          example: XXX
+          pattern: '^[a-zA-Z_0-9 ]*$'
+          maxLength: 25
+          minLength: 1
+        message:
+          type: string
+          description: Brief summary of the reported issue
+          example: Message
+          pattern: '^[a-zA-Z0-9\- \.]*$'
+          maxLength: 255
+          minLength: 1
+        level:
+          type: string
+          description: |-
+            Level of the reported issue.
+            The possible values are.
+            - ERROR
+            - FATAL
+            - INFO
+            - WARNING
+          enum:
+            - ERROR
+            - FATAL
+            - INFO
+            - WARNING
+          example: ERROR
+        description:
+          type: string
+          description: Detailed description of the reported issue
+          example: Description
+          pattern: '^[a-zA-Z0-9. /_-]*$'
+          maxLength: 255
+          minLength: 1
+      required:
+        - code
+        - message
+        - level
+        - description
+      additionalProperties: false
+    Errors:
+      description: Data structure containing the details for errors
+      type: object
+      properties:
+        errors:
+          description: Array of errors
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
+          maxItems: 50
+          minItems: 0
+      required:
+        - errors
+      additionalProperties: false
+    Date:
+      type: string
+      description: Date to filter between indicated rate price
+      pattern: '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
+      maxLength: 255
+      example: '2020-06-14 00:00:00'
+    ProductId:
+      description: Product ID
+      type: integer
+      format: int64
+      example: 35550
+    BrandId:
+      description: Brand ID
+      type: integer
+      format: int32
+      example: 1
+    Price:
+      type: number
+      description: Price
+      format: double
+      example: 35.50
+      multipleOf: 0.01
+      minimum: 0
+      maximum: 9999.99
+    PriceList:
+      description: Rate
+      type: integer
+      format: int32
+      example: 1
+    PriceResponse:
+      type: object
+      required:
+        - productId
+        - brandId
+        - startDate
+        - endDate
+        - price
+        - priceList
+      properties:
+        productId:
+          $ref: '#/components/schemas/ProductId'
+        brandId:
+          $ref: '#/components/schemas/BrandId'
+        startDate:
+          $ref: '#/components/schemas/Date'
+        endDate:
+          $ref: '#/components/schemas/Date'
+        price:
+          $ref: '#/components/schemas/Price'
+        priceList:
+          $ref: '#/components/schemas/PriceList'
+
+  responses:
+    error400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          examples:
+            err400Example:
+              $ref: '#/components/examples/err400Example'
+    error401:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          examples:
+            err401Example:
+              $ref: '#/components/examples/err401Example'
+    error403:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          examples:
+            err403Example:
+              $ref: '#/components/examples/err403Example'
+    error404:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          examples:
+            err404Example:
+              $ref: '#/components/examples/err404Example'
+    error406:
+      description: Not Acceptable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          examples:
+            err406Example:
+              $ref: '#/components/examples/err406Example'
+    error413:
+      description: Payload Too Large
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          examples:
+            err413Example:
+              $ref: '#/components/examples/err413Example'
+    error414:
+      description: URI Too Long
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          examples:
+            err414Example:
+              $ref: '#/components/examples/err414Example'
+    error422:
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          examples:
+            err422Example:
+              $ref: '#/components/examples/err422Example'
+    error429:
+      description: Too Many Requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          examples:
+            err429Example:
+              $ref: '#/components/examples/err429Example'
+    error500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          examples:
+            err500Example:
+              $ref: '#/components/examples/err500Example'
+    error503:
+      description: Service unavailable
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          examples:
+            err503Example:
+              $ref: '#/components/examples/err503Example'
+    error504:
+      description: Gateway timeout
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          examples:
+            err504Example:
+              $ref: '#/components/examples/err504Example'
+    errorDefault:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          examples:
+            errDefaultExample:
+              $ref: '#/components/examples/errDefaultExample'
+    response204:
+      description: No Content
+    getPriceResponse:
+      description: The price response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PriceResponse'
+          examples:
+            priceResponseExample:
+              $ref: '#/components/examples/PriceResponseExample'
+
+  examples:
+    PriceResponseExample:
+      value:
+        productId: 35455
+        brandId: 1
+        startDate: 2020-06-14 00:00:00
+        endDate: 2020-21-31 11:00:00
+        price: 35.45
+        priceList: 2
+    err400Example:
+      value:
+        errors:
+          - code: BAD_REQUEST
+            level: ERROR
+            message: Bad Request
+            description: Error validating schema
+    err401Example:
+      value:
+        errors:
+          - code: UNAUTHORIZED
+            message: Unauthorized
+            level: ERROR
+            description: Unauthorized description
+    err403Example:
+      value:
+        errors:
+          - code: FORBIDDEN
+            level: ERROR
+            message: Forbidden
+            description: Forbidden description
+          - code: FORBIDDEN
+            level: ERROR
+            message: Forbidden
+            description: Forbidden description
+    err404Example:
+      value:
+        errors:
+          - code: NOT_FOUND
+            level: ERROR
+            message: Not Found
+            description: Not Found description
+    err406Example:
+      value:
+        errors:
+          - code: NOT_ACCEPTABLE
+            level: ERROR
+            message: Not Acceptable
+            description: Not Acceptable description
+    err413Example:
+      value:
+        errors:
+          - code: PAYLOAD_TOO_LARGE
+            level: ERROR
+            message: Payload Too Large
+            description: Payload Too Large description
+    err414Example:
+      value:
+        errors:
+          - code: URI_TOO_LONG
+            level: ERROR
+            message: URI Too Long
+            description: URI Too Long description
+    err422Example:
+      value:
+        errors:
+          - code: UNPROCESABLE_ENTITY
+            level: ERROR
+            message: Unprocessable Entity
+            description: Unprocessable Entity description
+    err429Example:
+      value:
+        errors:
+          - code: TOO_MANY_REQUEST
+            level: ERROR
+            message: Too Many Requests
+            description: Too Many Requests description
+    err500Example:
+      value:
+        errors:
+          - code: INTERNAL_SERVER_ERROR
+            level: ERROR
+            message: Internal server error
+            description: Internal server error description
+    err503Example:
+      value:
+        errors:
+          - code: SERVICE_UNAVAILABLE
+            level: ERROR
+            message: Service unavailable
+            description: Service unavailable description
+    err504Example:
+      value:
+        errors:
+          - code: GATEWAY_TIMEOUT
+            level: ERROR
+            message: Gateway timeout
+            description: Gateway timeout description
+    errDefaultExample:
+      value:
+        errors:
+          - code: Error code
+            level: ERROR
+            message: Error message
+            description: Error description

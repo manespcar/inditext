@@ -24,6 +24,12 @@ Starting from the project's root folder, execute the following steps from a new 
     java -jar inditex-boot/target/inditex-boot-0.0.1-SNAPSHOT.jar
     ```
 
+2. Spring-boot app (from the root of the project):
+
+    ```
+   mvn spring-boot:run -pl inditex-boot
+    ```
+
 ## Features
 ### API's
 
